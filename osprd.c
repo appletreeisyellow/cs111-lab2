@@ -373,14 +373,14 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
             /* 2. assign ticket number */
             /* critical section begins: */
             osp_spin_lock(&d->mutex);
-            unsigned my_ticket_num = d->ticket_head;
+            unsigned local_ticket = d->ticket_head;
             d->ticket_head++;
             osp_spin_unlock(&d->mutex);
             /* critical section ends! */
             
             
             /* 3. handle the signal */
-            if(wait_event_interruptible(d->blockq, my_ticket_num == d->ticket_tail && d->num_read_locks ==0 && d->num_write_locks == 0)){
+            if(wait_event_interruptible(d->blockq, local_ticket == d->ticket_tail && d->num_read_locks ==0 && d->num_write_locks == 0)){
                 /* critical section begins: */
                 osp_spin_lock(&d->mutex);
                 if(d->ticket_tail == local_ticket)
@@ -433,7 +433,7 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
             /* 2. assign ticket number */
             /* critical section begins: */
             osp_spin_lock(&d->mutex);
-            unsigned my_ticket_num = d->ticket_head;
+            unsigned local_ticket = d->ticket_head;
             d->ticket_head++;
 
             osp_spin_unlock(&d->mutex);
@@ -441,7 +441,7 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
             
             
             /* 3. handle the signal */
-            if(wait_event_interruptible(d->blockq, my_ticket_num == d->ticket_tail && d->num_write_locks == 0)){
+            if(wait_event_interruptible(d->blockq, local_ticket == d->ticket_tail && d->num_write_locks == 0)){
                 /* critical section begins: */
                 osp_spin_lock(&d->mutex);
                 if(d->ticket_tail == local_ticket)
