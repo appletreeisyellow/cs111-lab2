@@ -112,12 +112,12 @@ static osprd_info_t osprds[NOSPRD];
 
 /*
  * Added 1:
- * int find_pid(pid_t my_pid, pid_list_t a)
+ * int check_pid(pid_t my_pid, pid_list_t a)
  *   Given a pid, check whether that pid exists in the list.
  *   If so, return 1.
  *   If not, return 0.
  */
-int find_pid(pid_t my_pid, pid_list_t a){
+int check_pid(pid_t my_pid, pid_list_t a){
     pid_list_t curr = a;
     while (curr != NULL){
         if(curr->pid == my_pid)
@@ -441,7 +441,7 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
             // case 1: the current requester is already the writer
             if (current->pid == d->write_pid)
                 r = -EDEADLK;
-            if (find_pid(current->pid, d->read_queue) == 1)
+            if (check_pid(current->pid, d->read_queue) == 1)
                 r = -EDEADLK;
             osp_spin_unlock(&d->mutex);
             /* critical section ends! */
@@ -489,7 +489,7 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
             // case 1: the current requester is already the writer
             if (current->pid == d->write_pid)
                 r = -EDEADLK;
-            if (find_pid(current->pid, d->read_queue) == 1)
+            if (check_pid(current->pid, d->read_queue) == 1)
                 r = -EDEADLK;
             osp_spin_unlock(&d->mutex);
             /* critical section ends! */
@@ -552,7 +552,7 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
             /* case 1: when OSPRDIOCACQUIRE would return deadlock */
             if (current->pid == d->write_pid)
                 r = -EBUSY;
-            if (find_pid(current->pid, d->read_queue) == 1)
+            if (check_pid(current->pid, d->read_queue) == 1)
                 r = -EBUSY;
             /* case 2: when OSPRDIOCACQUIRE would block*/
             if ( d->num_read_locks > 0 || d->num_write_locks > 0)
@@ -579,7 +579,7 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
             /* case 1: when OSPRDIOCACQUIRE would return deadlock */
             if (current->pid == d->write_pid)
                 r = -EBUSY;
-            if (find_pid(current->pid, d->read_queue) == 1)
+            if (check_pid(current->pid, d->read_queue) == 1)
                 r = -EBUSY;
             /* case 2: when OSPRDIOCACQUIRE would block*/
             if ( d->num_write_locks > 0)
