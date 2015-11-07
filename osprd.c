@@ -63,7 +63,7 @@ struct ticket_list
 {
     int ticket_num;
     struct ticket_list* next;
-}
+};
 typedef struct ticket_list* ticket_list_t;
 
 
