@@ -448,7 +448,7 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
                     d->ticket_tail++;;
                 
                 // invalid ticket will be skipped
-                d->invalid_ticket_list[num_invalid_ticket] = local_ticket;
+                d->invalid_ticket_list[d->num_invalid_ticket] = local_ticket;
                 d->num_invalid_ticket++;
                 
                 osp_spin_unlock(&d->mutex);
