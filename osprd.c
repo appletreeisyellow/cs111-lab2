@@ -523,7 +523,7 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
             osp_spin_lock(&d->mutex);
             filp->f_flags |= F_OSPRD_LOCKED;
             // record writer info
-            d->read_write_locks++;
+            d->num_read_locks++;
             add_pid(current->pid, d->read_queue);
             // get next available ticket
             d->ticket_tail=next_valid_ticket(d->ticket_queue);
