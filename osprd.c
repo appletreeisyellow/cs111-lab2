@@ -359,7 +359,7 @@ static int osprd_close_last(struct inode *inode, struct file *filp)
             wake_up_all(&d->blockq);
             
             osp_spin_unlock(&d->mutex);
-            /* critical section begins: */
+            /* critical section ends */
         }
         
 		// This line avoids compiler warnings; you may remove it.
