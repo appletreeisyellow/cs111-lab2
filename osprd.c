@@ -382,7 +382,7 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
             /* 3. handle the signal */
             if(wait_event_interruptible(d->blockq, local_ticket == d->ticket_tail && d->num_read_locks ==0 && d->num_write_locks == 0)){
                 /* critical section begins: */
-                osp_spin_lock(&d->mutex);
+                //osp_spin_lock(&d->mutex);
                 if(d->ticket_tail == local_ticket)
                     d->ticket_tail++;
                 
@@ -390,7 +390,7 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
                 d->invalid_ticket_list[d->num_invalid_ticket] = local_ticket;
                 d->num_invalid_ticket++;
                 
-                osp_spin_unlock(&d->mutex);
+                //osp_spin_unlock(&d->mutex);
                 /* critical section ends! */
                 return -ERESTARTSYS;
             }
@@ -443,7 +443,7 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
             /* 3. handle the signal */
             if(wait_event_interruptible(d->blockq, local_ticket == d->ticket_tail && d->num_write_locks == 0)){
                 /* critical section begins: */
-                osp_spin_lock(&d->mutex);
+                //osp_spin_lock(&d->mutex);
                 if(d->ticket_tail == local_ticket)
                     d->ticket_tail++;;
                 
@@ -451,7 +451,7 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
                 d->invalid_ticket_list[d->num_invalid_ticket] = local_ticket;
                 d->num_invalid_ticket++;
                 
-                osp_spin_unlock(&d->mutex);
+                //osp_spin_unlock(&d->mutex);
                 /* critical section ends! */
                 return -ERESTARTSYS;
             }
