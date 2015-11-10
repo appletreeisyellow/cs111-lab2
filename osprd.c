@@ -1,6 +1,6 @@
 // CS 111 Lab 2
 // Chunchun Ye	304-502-384
-// Kexin Yu		804-316-935
+// Kexin Yu	804-316-935
 
 
 #include <linux/version.h>
@@ -23,7 +23,7 @@
 #include "osprd.h"
 
 
-#include <linux/slab.h>  /* kzalloc(), kfree(): allocating&freeing memory for read_queue&ticket_queue */
+#include <linux/slab.h>  /* kzalloc(), kfree(): allocating&freeing memory for read_queue */
 
 
 /* The size of an OSPRD sector. */
@@ -91,8 +91,8 @@ typedef struct osprd_info {
     int num_write_locks;	    // Number of wirte lock. It can only be 1 or 0
     pid_t write_pid;		    // PID of the write lock holder
     
-    int* invalid_ticket_list;
-    int num_invalid_ticket;
+    int* invalid_ticket_list;       // List of invalid ticket numbers
+    int num_invalid_ticket;         // Number of invalid tickets 
     
     // The following elements are used internally; you don't need
     // to understand them.
@@ -269,8 +269,7 @@ static int osprd_close_last(struct inode *inode, struct file *filp)
         // a lock, release the lock.  Also wake up blocked processes
         // as appropriate.
         
-        // Your code here.
-
+        /* critical section begins: */
 	osp_spin_lock(&d->mutex);
         if (filp->f_flags & F_OSPRD_LOCKED){ // The file is LOCKED
             if (filp_writable){
@@ -354,8 +353,7 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
         // Then, block at least until 'd->ticket_tail == local_ticket'.
         // (Some of these operations are in a critical section and must
         // be protected by a spinlock; which ones?)
-        
-        // Your code here (instead of the next two lines).
+       
         
         if(d == NULL) return -1;
 
@@ -369,10 +367,12 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
                 return -EDEADLK;
 
 	/* 2. assign ticket number */
+	/* critical section begins: */
 	osp_spin_lock(&d->mutex);
         local_ticket = d->ticket_head;
         d->ticket_head++;
         osp_spin_unlock(&d->mutex);
+        /* critical section ends! */
 
         if(filp_writable){ // File to write
             
@@ -500,13 +500,11 @@ int osprd_ioctl(struct inode *inode, struct file *filp,
         else{
             /* critical section begins: */
             osp_spin_lock(&d->mutex);
-            if (filp_writable)
-            {
+            if (filp_writable){
                 d->num_write_locks = 0;	// Number of write lock can only be 0 and 1
                 d->write_pid = -1;
             }
-            else
-            {
+            else{
                 d->num_read_locks--;
                 remove_pid(current->pid,d->read_queue);
             }
